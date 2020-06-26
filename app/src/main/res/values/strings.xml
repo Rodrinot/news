@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Uda News</string>
+    <string name="no_internet_connection">There is an error loading the last news. Please, check your Internet connection or try again later.</string>
+</resources>
