@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     // DONE: Create a new JSONObject
                     JSONObject jsonObject = new JSONObject(jsonString);
 
-                    // DONE: Get the JSON Array node and name it "results"
+                    // DONE: Get the JSON Array node and headline it "results"
                     JSONObject response = jsonObject.getJSONObject("response");
 
                     JSONArray results = response.getJSONArray("results");
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < results.length(); i++) {
                             // DONE: get the JSONObject and its three attributes
                             JSONObject c = results.getJSONObject(i);
-                            String name = c.getString("webTitle");
+                            String headline = c.getString("webTitle");
                             String section = c.getString("sectionName");
                             String date = c.getString("webPublicationDate");
                             String url = c.getString("webUrl");
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             HashMap<String, String> news = new HashMap<>();
 
                             // add each child node to HashMap key => value
-                            news.put("name", name);
+                            news.put("headline", headline);
                             news.put("section", section);
                             news.put("author", author);
                             news.put("date", date.substring(0, 10));
@@ -197,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
             mEmptyStateTextView.setVisibility(View.GONE);
 
             final ListAdapter adapter = new SimpleAdapter(MainActivity.this, newsList,
-                    R.layout.list_item, new String[]{"name", "section", "author", "date", "url"},
-                    new int[]{R.id.name, R.id.section, R.id.author, R.id.date, R.id.url});
+                    R.layout.list_item, new String[]{"headline", "section", "author", "date", "url"},
+                    new int[]{R.id.headline, R.id.section, R.id.author, R.id.date, R.id.url});
             list_view.setAdapter(adapter);
 
             // Set a click listener to open the url when the list item is clicked on.
