@@ -2,10 +2,8 @@ package com.example.android.newsapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -27,21 +25,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
     /** URL for news data from Guardian APIs */
-    private static final String REQUEST_URL =
-            "https://content.guardianapis.com/search?q=debate&tag=politics/politics&from-date=2014-01-01&api-key=test";
+    private static final String GUARDIAN_URL =
+            "https://content.guardianapis.com/search?";
 
     /**
      * Constant value for the earthquake loader ID. We can choose any integer.
@@ -93,8 +84,7 @@ public class MainActivity extends AppCompatActivity {
             HttpHandler sh = new HttpHandler();
             String jsonString = "";
             try {
-                // DONE: Make a request to the URL
-                jsonString = sh.makeHttpRequest(createUrl(REQUEST_URL));
+                jsonString = sh.makeHttpRequest(createUrl(UriBuilder()));
             } catch (IOException e) {
                 return null;
             }
@@ -110,27 +100,43 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONArray results = response.getJSONArray("results");
 
+                    if (results.length() > 0) {
+                        // looping through all Contacts
+                        for (int i = 0; i < results.length(); i++) {
+                            // DONE: get the JSONObject and its three attributes
+                            JSONObject c = results.getJSONObject(i);
+                            String name = c.getString("webTitle");
+                            String section = c.getString("sectionName");
+                            String date = c.getString("webPublicationDate");
+                            String url = c.getString("webUrl");
 
-                    // looping through all Contacts
-                    for (int i = 0; i < results.length(); i++) {
-                        // DONE: get the JSONObject and its three attributes
-                        JSONObject c = results.getJSONObject(i);
-                        String name = c.getString("webTitle");
-                        String section = c.getString("sectionName");
-                        String date = c.getString("webPublicationDate");
-                        String url = c.getString("webUrl");
+                            JSONArray tags = c.getJSONArray("tags");
+                            JSONObject t = tags.getJSONObject(0);
+                            String author = "Anonymous";
+                            if (t.has("webTitle")) {
+                                author = t.getString("webTitle");
+                            }
 
-                        // tmp hash map for a single news
-                        HashMap<String, String> news = new HashMap<>();
+                            // tmp hash map for a single news
+                            HashMap<String, String> news = new HashMap<>();
 
-                        // add each child node to HashMap key => value
-                        news.put("name", name);
-                        news.put("section", section);
-                        news.put("date", date.substring(0,10));
-                        news.put("url", url);
+                            // add each child node to HashMap key => value
+                            news.put("name", name);
+                            news.put("section", section);
+                            news.put("author", author);
+                            news.put("date", date.substring(0, 10));
+                            news.put("url", url);
 
-                        // adding a news to our news list
-                        newsList.add(news);
+                            // adding a news to our news list
+                            newsList.add(news);
+                        }
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mEmptyStateTextView.setText(R.string.no_news);
+                            }
+                        });
                     }
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -147,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 Log.e(TAG, "Couldn't get json from server.");
+                //mEmptyStateTextView.setText(R.string.no_news);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -158,6 +165,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             return null;
+        }
+
+        private String UriBuilder() {
+            // DONE: Make a request to the URL
+            Uri baseUri = Uri.parse(GUARDIAN_URL);
+            Uri.Builder uriBuilder = baseUri.buildUpon();
+            uriBuilder.appendQueryParameter("q", "debate");
+            uriBuilder.appendQueryParameter("from-date", "2014-01-01");
+            uriBuilder.appendQueryParameter("api-key", "test");
+            uriBuilder.appendQueryParameter("show-tags", "contributor");
+
+            return uriBuilder.toString();
         }
 
         private URL createUrl(String stringUrl) {
@@ -178,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
             mEmptyStateTextView.setVisibility(View.GONE);
 
             final ListAdapter adapter = new SimpleAdapter(MainActivity.this, newsList,
-                    R.layout.list_item, new String[]{"name", "section", "date", "url"},
-                    new int[]{R.id.name, R.id.section, R.id.date, R.id.url});
+                    R.layout.list_item, new String[]{"name", "section", "author", "date", "url"},
+                    new int[]{R.id.name, R.id.section, R.id.author, R.id.date, R.id.url});
             list_view.setAdapter(adapter);
 
             // Set a click listener to open the url when the list item is clicked on.
@@ -187,8 +206,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                     // Open link
-                    TextView textView = findViewById(R.id.url);
-                    String url = textView.getText().toString();
+                    TextView textView = (TextView) view.findViewById(R.id.url);
+                    String url = (String) textView.getText();
+
                     Uri uri = Uri.parse(url);
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
