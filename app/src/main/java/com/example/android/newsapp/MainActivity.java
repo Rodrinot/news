@@ -39,13 +39,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     /** URL for news data from Guardian APIs */
     private static final String GUARDIAN_URL =
-            "https://content.guardianapis.com/search?";
+            "https://content.guardianaps.com/search?";
 
     /**
      * Constant value for the earthquake loader ID. We can choose any integer.
      * This really only comes into play if you're using multiple loaders.
      */
     private static final int NEWS_LOADER_ID = 1;
+
+    private Boolean internetOk = false;
 
     private String TAG = MainActivity.class.getName();
     private ListView list_view;
@@ -77,9 +79,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         // If there is a network connection, fetch data
         if (networkInfo != null && networkInfo.isConnected()) {
-            // We have Internet connection.
+            // We have an Internet connection.
+            internetOk = true;
         } else {
             // Update empty state with no connection error message
+            internetOk = false;
             mEmptyStateTextView.setText(R.string.no_internet_connection);
         }
 
@@ -139,7 +143,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mEmptyStateTextView.setText(R.string.no_news);
+                            if (internetOk) {
+                                mEmptyStateTextView.setText(R.string.no_news);
+                            } else {
+                                mEmptyStateTextView.setText(R.string.no_internet_connection);
+                            }
                         }
                     });
                 }
@@ -158,7 +166,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         } else {
             Log.e(TAG, "Couldn't get json from server.");
-            mEmptyStateTextView.setText(R.string.no_news);
+            if (internetOk) {
+                mEmptyStateTextView.setText(R.string.no_news);
+            } else {
+                mEmptyStateTextView.setText(R.string.no_internet_connection);
+            }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

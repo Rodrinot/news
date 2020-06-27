@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Breaking News</string>
-    <string name="no_internet_connection">There is an error loading the last news. Please, check your Internet connection or try again later.</string>
+    <string name="no_internet_connection">There is a network error. Please, check your Internet connection and try again.</string>
     <string name="no_news">Error: There is no news to display. Please, try again later.</string>
 </resources>
