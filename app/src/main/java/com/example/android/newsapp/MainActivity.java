@@ -39,13 +39,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     /** URL for news data from Guardian APIs */
     private static final String GUARDIAN_URL =
-            "https://content.guardianaps.com/search?";
-
-    /**
-     * Constant value for the earthquake loader ID. We can choose any integer.
-     * This really only comes into play if you're using multiple loaders.
-     */
-    private static final int NEWS_LOADER_ID = 1;
+            "https://content.guardianapis.com/search?";
 
     private Boolean internetOk = false;
 
